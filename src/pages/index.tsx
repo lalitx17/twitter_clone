@@ -10,6 +10,8 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import toast from "react-hot-toast";
+import Link from "next/link";
+import { PageLayout } from "~/components/layout";
 
 dayjs.extend(relativeTime);
 
@@ -28,10 +30,15 @@ const PostView = (props: PostWithUser) => {
       />
       <div className="flex flex-col">
         <div className="flex gap-1 text-slate-300">
-          <span>{`@${author.username}`}</span>
-          <span className="font-thin">{`·  ${dayjs(
-            post.createdAt,
-          ).fromNow()}`}</span>
+          <Link href={`/@${author.username}`}>
+            {" "}
+            <span>{`@${author.username}`}</span>
+          </Link>
+          <Link href={`/post/${post.id}`}>
+            <span className="font-thin">{`·  ${dayjs(
+              post.createdAt,
+            ).fromNow()}`}</span>
+          </Link>
         </div>
         <span className="text-xl">{post.content}</span>
       </div>
@@ -82,10 +89,10 @@ const CreatePostWizard = () => {
         type="text"
         disabled={isPosting}
         onKeyDown={(e) => {
-          if (e.key === "Enter"){
+          if (e.key === "Enter") {
             e.preventDefault();
-            if (input !== ""){
-              mutate({content: input})
+            if (input !== "") {
+              mutate({ content: input });
             }
           }
         }}
@@ -97,10 +104,10 @@ const CreatePostWizard = () => {
         <button onClick={() => mutate({ content: input })}>Post</button>
       )}
 
-      {isPosting &&( 
-        <div className="flex item-center justify-center">
-      <LoadingSpinner size={20} />
-      </div>
+      {isPosting && (
+        <div className="item-center flex justify-center">
+          <LoadingSpinner size={20} />
+        </div>
       )}
     </div>
   );
@@ -114,7 +121,7 @@ const Feed = () => {
   if (!data) return <div>Something went wrong!</div>;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex grow flex-col overflow-y-scroll">
       {data.map((fullPost) => (
         <PostView {...fullPost} key={fullPost.post.id} />
       ))}
@@ -132,13 +139,8 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Tittr</title>
-      </Head>
-
-      <main className="flex h-screen justify-center">
-        <div className="h-full w-full border-x border-slate-400 md:max-w-2xl">
-          <div className="flex border-b border-slate-400 p-4">
+      <PageLayout>
+      <div className="flex border-b border-slate-400 p-4">
             {!isSignedIn && (
               <div className="flex justify-center text-white">
                 {" "}
@@ -148,8 +150,7 @@ export default function Home() {
             {isSignedIn && <CreatePostWizard />}
           </div>
           <Feed />
-        </div>
-      </main>
+          </PageLayout>
     </>
   );
 }
